@@ -1,0 +1,94 @@
+# Yeetables Plugin Configuration
+
+# Custom items with recipes (defined separately from yeetables)
+custom-items:
+  paper_airplane:
+    material: PAPER
+    display-name: "§fPaper Airplane"
+    lore:
+      - "Right-click to throw"
+    recipe:
+      shape:
+        - "P P"
+        - " P "
+      ingredients:
+        P: PAPER
+
+# TODO:
+
+# bomb head texture
+# eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWUzMmJkYzU2NzVlOGVlMDViNjc3ZTlhZGM2MDRmNDQ1MTcxZGM5NGUzZTRlZDRjN2ZhNDNiNTY5MGZhMzMyYiJ9fX0=
+# gunpowder surrounded with 4 iron ingots
+
+# Yeetable projectiles
+yeetables:
+  - id: brick
+    item:
+      material: BRICK
+    properties:
+      speed: 1.0
+      accuracy-offset: 0.05
+      cooldown: 600
+      damage: 4.0
+    render:
+      type: simple
+      material: BRICK
+    consumption: MAIN_HAND
+    impact-particles:
+      count: 50
+      spread: 0.3
+      velocity: 0.1
+
+  - id: slimeball
+    item:
+      material: SLIME_BALL
+    properties:
+      speed: 1.5
+      accuracy-offset: 0.01
+      cooldown: 300
+      knockback-strength: 1.0
+      knockback-vertical: 0.35
+    ability: bounce
+    ability-config:
+      num-bounces: 3
+    render:
+      type: simple
+      material: SLIME_BALL
+    consumption: MAIN_HAND
+    impact-particles:
+      count: 15
+      spread: 0.25
+      velocity: 0.08
+
+  - id: paper_airplane
+    item:
+      material: PAPER
+      display-name: "§fPaper Airplane"
+      lore:
+        - "Right-click to throw"
+    properties:
+      speed: 0.5
+      accuracy-offset: 0.02
+      cooldown: 800
+      gravity-multiplier: 0.3
+      knockback-strength: 0.4
+      knockback-vertical: 0.2
+      drop-on-break: PAPER
+    render:
+      type: block-display
+      yaw-offset: 0.0
+      yaw-multiplier: -1.0
+      pitch-offset: 0.0
+      pitch-multiplier: 1.0
+      blocks:
+        - block: WHITE_CARPET
+          transformation: [0.1767766953, 0.0, -0.1767766953, 0.1767766953, 0.0, 0.25, 0.0, 0.0621875, 0.2209708691, 0.0, 0.2209708691, 0.09765625, 0.0, 0.0, 0.0, 1.0]
+        - block: WHITE_CARPET
+          transformation: [0.34375, 0.0, 0.0, 0.0049016953, 0.0, 0.25, 0.0, 0.0625, 0.0, 0.0, 0.3125, 0.0, 0.0, 0.0, 0.0, 1.0]
+        - block: WHITE_CARPET
+          transformation: [0.0, -0.25, 0.0, 0.1845891953, 0.0625, 0.0, 0.0, 0.0, 0.0, 0.0, 0.52734375, 0.0, 0.0, 0.0, 0.0, 1.0]
+    consumption: MAIN_HAND
+    impact-particles:
+      count: 10
+      spread: 0.15
+      velocity: 0.05

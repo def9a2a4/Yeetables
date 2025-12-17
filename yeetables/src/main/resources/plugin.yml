@@ -1,0 +1,17 @@
+name: Yeetables
+main: anon.def9a2a4.yeetables.YeetablesPlugin
+version: ${version}
+api-version: 1.21
+author: You
+description: Data-driven throwable items with configurable physics, abilities, and rendering.
+
+commands:
+  yeetables:
+    description: Yeetables plugin commands
+    usage: /yeetables reload
+    permission: yeetables.reload
+
+permissions:
+  yeetables.reload:
+    description: Allows reloading the plugin configuration
+    default: op
