@@ -2,6 +2,8 @@
 
 A Minecraft Paper plugin for data-driven throwable items with configurable physics, abilities, and rendering.
 
+Download on Modrinth: [modrinth.com/plugin/yeetables](https://modrinth.com/plugin/yeetables)
+
 ## Default Yeetables
 
 - **Popped Chorus Fruit** - Thrower swaps positions with the target
