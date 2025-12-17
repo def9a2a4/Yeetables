@@ -1,0 +1,223 @@
+# Yeetables - Throwable Projectile Definitions
+
+yeetables:
+  - id: brick
+    item:
+      material: BRICK
+    properties:
+      speed: 1.0
+      accuracy-offset: 0.05
+      cooldown: 600
+      damage: 4.0
+    render:
+      type: simple
+      material: BRICK
+    consumption: MAIN_HAND
+    sounds:
+      impact: BLOCK_STONE_BREAK
+
+  - id: slimeball
+    item:
+      material: SLIME_BALL
+    properties:
+      speed: 1.5
+      accuracy-offset: 0.01
+      cooldown: 300
+      knockback-strength: 1.0
+      knockback-vertical: 0.35
+    ability: bounce
+    ability-config:
+      num-bounces: 3
+    render:
+      type: simple
+      material: SLIME_BALL
+    consumption: MAIN_HAND
+    sounds:
+      impact: ENTITY_SLIME_SQUISH
+
+  - id: paper_airplane
+    item:
+      material: PAPER
+      display-name: "§fPaper Airplane"
+      lore:
+        - "Right-click to throw"
+    properties:
+      speed: 0.5
+      accuracy-offset: 0.02
+      cooldown: 800
+      gravity-multiplier: 0.3
+      knockback-strength: 0.4
+      knockback-vertical: 0.2
+      drop-on-break: PAPER
+    render:
+      type: block-display
+      yaw-offset: 0.0
+      yaw-multiplier: -1.0
+      pitch-offset: 0.0
+      pitch-multiplier: 1.0
+      blocks:
+        - block: WHITE_CARPET
+          transformation: [0.1767766953, 0.0, -0.1767766953, 0.1767766953, 0.0, 0.25, 0.0, 0.0621875, 0.2209708691, 0.0, 0.2209708691, 0.09765625, 0.0, 0.0, 0.0, 1.0]
+        - block: WHITE_CARPET
+          transformation: [0.34375, 0.0, 0.0, 0.0049016953, 0.0, 0.25, 0.0, 0.0625, 0.0, 0.0, 0.3125, 0.0, 0.0, 0.0, 0.0, 1.0]
+        - block: WHITE_CARPET
+          transformation: [0.0, -0.25, 0.0, 0.1845891953, 0.0625, 0.0, 0.0, 0.0, 0.0, 0.0, 0.52734375, 0.0, 0.0, 0.0, 0.0, 1.0]
+    consumption: MAIN_HAND
+    impact-particles:
+      count: 10
+      spread: 0.15
+      velocity: 0.05
+    sounds:
+      launch: ITEM_BOOK_PAGE_TURN
+
+  - id: bomb
+    item:
+      material: PLAYER_HEAD
+      display-name: "Bomb"
+      lore:
+        - "Right-click to throw"
+    properties:
+      speed: 0.8
+      accuracy-offset: 0.03
+      cooldown: 1000
+    ability: explode
+    ability-config:
+      power: 2.0
+      set-fire: false
+      break-blocks: false
+    render:
+      type: item-display
+      item-id: bomb
+      rotation-mode: none
+      transformation: [1.0, 0.0, 0.0, -0.5, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, -0.5, 0.0, 0.0, 0.0, 1.0]
+    consumption: MAIN_HAND
+
+  - id: fire_charge
+    item:
+      material: FIRE_CHARGE
+    properties:
+      speed: 1.5
+      accuracy-offset: 0.02
+      cooldown: 500
+      gravity-multiplier: 0.5
+    ability: fireball
+    render:
+      type: simple
+      material: FIRE_CHARGE
+    consumption: MAIN_HAND
+    sounds:
+      launch: ENTITY_BLAZE_SHOOT
+
+  - id: magma_cream
+    item:
+      material: MAGMA_CREAM
+    properties:
+      speed: 1.2
+      accuracy-offset: 0.02
+      cooldown: 400
+      knockback-strength: 0.5
+      knockback-vertical: 0.2
+    ability: ignite
+    ability-config:
+      num-bounces: 3
+      fire-ticks: 100
+    render:
+      type: simple
+      material: MAGMA_CREAM
+    consumption: MAIN_HAND
+
+  - id: fermented_spider_eye
+    item:
+      material: FERMENTED_SPIDER_EYE
+    properties:
+      speed: 1.0
+      accuracy-offset: 0.03
+      cooldown: 600
+    ability: potion
+    ability-config:
+      effect: WEAKNESS
+      duration: 200
+      amplifier: 0
+    render:
+      type: simple
+      material: FERMENTED_SPIDER_EYE
+    consumption: MAIN_HAND
+
+  - id: clay_ball
+    item:
+      material: CLAY_BALL
+    properties:
+      speed: 1.0
+      accuracy-offset: 0.04
+      cooldown: 500
+    ability: potion
+    ability-config:
+      effect: SLOWNESS
+      duration: 160
+      amplifier: 1
+    render:
+      type: simple
+      material: CLAY_BALL
+    consumption: MAIN_HAND
+
+  - id: grappling_hook
+    item:
+      material: CROSSBOW
+      display-name: "Grappling Hook"
+      lore:
+        - "Right-click to launch"
+    properties:
+      speed: 1.5
+      accuracy-offset: 0.0
+      cooldown: 500
+    ability: grapple
+    ability-config:
+      despawn-ticks: 100
+      pull-strength: 0.96
+    projectile-type: arrow
+    consumption: NONE
+
+  - id: popped_chorus_fruit
+    item:
+      material: POPPED_CHORUS_FRUIT
+    properties:
+      speed: 1.2
+      accuracy-offset: 0.03
+      cooldown: 500
+    ability: swap
+    render:
+      type: simple
+      material: POPPED_CHORUS_FRUIT
+    consumption: MAIN_HAND
+    sounds:
+      impact: ITEM_CHORUS_FRUIT_TELEPORT
+
+  - id: nether_brick
+    item:
+      material: NETHER_BRICK
+    properties:
+      speed: 1.2
+      accuracy-offset: 0.03
+      cooldown: 500
+    ability: swap
+    render:
+      type: simple
+      material: NETHER_BRICK
+    consumption: MAIN_HAND
+    sounds:
+      impact: BLOCK_NETHER_BRICKS_BREAK
+
+  - id: resin_brick
+    item:
+      material: RESIN_BRICK
+    properties:
+      speed: 1.2
+      accuracy-offset: 0.03
+      cooldown: 500
+    ability: swap
+    render:
+      type: simple
+      material: RESIN_BRICK
+    consumption: MAIN_HAND
+    sounds:
+      impact: BLOCK_RESIN_BRICKS_BREAK

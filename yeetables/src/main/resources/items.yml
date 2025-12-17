@@ -1,0 +1,45 @@
+# Yeetables - Custom Craftable Items
+
+items:
+  paper_airplane:
+    material: PAPER
+    display-name: "Paper Airplane"
+    lore:
+      - "Right-click to throw"
+    recipe:
+      shape:
+        - "P P"
+        - " P "
+      ingredients:
+        P: PAPER
+
+  bomb:
+    material: PLAYER_HEAD
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWUzMmJkYzU2NzVlOGVlMDViNjc3ZTlhZGM2MDRmNDQ1MTcxZGM5NGUzZTRlZDRjN2ZhNDNiNTY5MGZhMzMyYiJ9fX0="
+    display-name: "Bomb"
+    lore:
+      - "Right-click to throw"
+    recipe:
+      shape:
+        - " I "
+        - "IGI"
+        - " I "
+      ingredients:
+        I: IRON_NUGGET
+        G: GUNPOWDER
+
+  grappling_hook:
+    material: CROSSBOW
+    display-name: "Grappling Hook"
+    lore:
+      - "Right-click to launch"
+    charged: true
+    recipe:
+      shape:
+        - " I "
+        - "ISI"
+        - " C "
+      ingredients:
+        I: IRON_INGOT
+        S: STRING
+        C: CROSSBOW

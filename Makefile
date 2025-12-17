@@ -11,7 +11,8 @@ clean:
 
 .PHONY: server-plugin-copy
 server-plugin-copy:
-	rm -f server/plugins/yeetables*.jar
+	rm -f server/plugins/Yeetables*.jar
+	rm -rf server/plugins/Yeetables/
 	cp bin/*.jar server/plugins/
 
 .PHONY: server-clear-plugin-data

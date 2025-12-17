@@ -5,6 +5,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
@@ -69,6 +71,12 @@ public class ProjectileManager {
     // ========================================================================
 
     public void launch(Player player, YeetableDefinition def) {
+        // Check if this is an arrow-based projectile (grapple)
+        if ("arrow".equals(def.projectileType())) {
+            launchArrow(player, def);
+            return;
+        }
+
         ProjectileProperties props = def.properties();
 
         // Apply accuracy offset
@@ -97,7 +105,54 @@ public class ProjectileManager {
             );
             renderer.spawn();
             pdc.set(keyRendererId, PersistentDataType.INTEGER, renderer.getId());
+            if (configManager.shouldHideDisplayProjectiles()) {
+                snowball.setItem(new ItemStack(Material.AIR));
+            }
+        } else if (renderConfig instanceof ItemDisplayRender itemDisplay) {
+            ItemDisplayRenderer renderer = new ItemDisplayRenderer(
+                plugin, snowball, props.gravityMultiplier(), itemDisplay
+            );
+            renderer.spawn();
+            pdc.set(keyRendererId, PersistentDataType.INTEGER, renderer.getId());
+            if (configManager.shouldHideDisplayProjectiles()) {
+                snowball.setItem(new ItemStack(Material.AIR));
+            }
         }
+
+        // Play launch sound if configured
+        playLaunchSound(player.getLocation(), def.soundConfig());
+
+        // Consume item
+        consumeItem(player, def.consumption());
+
+        // Set cooldown
+        setCooldown(player, def);
+    }
+
+    private void launchArrow(Player player, YeetableDefinition def) {
+        // Don't fire if player already has an active grapple
+        if ("grapple".equals(def.ability()) && GrappleAbility.hasActiveGrapple(player)) {
+            return;
+        }
+
+        ProjectileProperties props = def.properties();
+
+        Vector dir = applyAccuracyOffset(player.getLocation().getDirection(), props.accuracyOffset());
+
+        Arrow arrow = player.launchProjectile(Arrow.class, dir.multiply(props.speed()));
+        arrow.setPickupStatus(Arrow.PickupStatus.DISALLOWED);
+
+        // Tag with yeetable ID
+        PersistentDataContainer pdc = arrow.getPersistentDataContainer();
+        pdc.set(keyYeetableId, PersistentDataType.STRING, def.id());
+
+        // Start grapple tracking
+        if ("grapple".equals(def.ability())) {
+            GrappleAbility.onLaunch(player, arrow, def.abilityConfig(), plugin);
+        }
+
+        // Play launch sound if configured
+        playLaunchSound(player.getLocation(), def.soundConfig());
 
         // Consume item
         consumeItem(player, def.consumption());
@@ -148,6 +203,20 @@ public class ProjectileManager {
         }
     }
 
+    private void playLaunchSound(Location loc, SoundConfig soundConfig) {
+        if (soundConfig != null && soundConfig.launch() != null) {
+            loc.getWorld().playSound(loc, soundConfig.launch(), soundConfig.volume(), soundConfig.pitch());
+        } else {
+            // Default throw sound for all projectiles
+            loc.getWorld().playSound(loc, Sound.ENTITY_SNOWBALL_THROW, 1.0f, 1.0f);
+        }
+    }
+
+    private void playImpactSound(Location loc, SoundConfig soundConfig) {
+        if (soundConfig == null || soundConfig.impact() == null) return;
+        loc.getWorld().playSound(loc, soundConfig.impact(), soundConfig.volume(), soundConfig.pitch());
+    }
+
     // ========================================================================
     // Hit Handling
     // ========================================================================
@@ -195,6 +264,9 @@ public class ProjectileManager {
         if (def.ability() == null) {
             spawnImpactParticles(impactLoc, def);
         }
+
+        // Play impact sound if configured
+        playImpactSound(impactLoc, def.soundConfig());
 
         // Entity hit effects
         if (event.getHitEntity() instanceof LivingEntity le && snowball.getShooter() instanceof Player shooter) {
