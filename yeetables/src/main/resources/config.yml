@@ -6,4 +6,4 @@ debug: false
 
 # Hide the actual snowball projectile when using block/item display renderers
 # Set to false for debugging to see the snowball alongside display entities
-hide-display-projectiles: false
+hide-display-projectiles: true
