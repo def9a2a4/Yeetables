@@ -1,7 +1,7 @@
 
 .PHONY: build
 build:
-	cd yeetables && gradle build
+	cd yeetables && gradle shadowJar
 	cp yeetables/build/libs/*.jar bin
 
 .PHONY: clean

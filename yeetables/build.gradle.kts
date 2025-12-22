@@ -1,9 +1,10 @@
 plugins {
     `java`
+    id("com.gradleup.shadow") version "9.0.0-beta4"
 }
 
 group = "anon.def9a2a4"
-version = "0.1.0"
+version = "0.1.1"
 
 java {
     toolchain {
@@ -21,6 +22,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    implementation("org.bstats:bstats-bukkit:3.1.0")
 }
 
 tasks {
@@ -35,6 +37,16 @@ tasks {
 
     jar {
         archiveBaseName.set("Yeetables")
+        manifest {
+            attributes["paperweight-mappings-namespace"] = "mojang"
+        }
+    }
+
+    shadowJar {
+        archiveBaseName.set("Yeetables")
+        archiveClassifier.set("")
+        relocate("org.bstats", "${project.group}.bstats")
+        mergeServiceFiles()
         manifest {
             attributes["paperweight-mappings-namespace"] = "mojang"
         }

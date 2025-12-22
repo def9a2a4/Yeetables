@@ -17,6 +17,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bstats.bukkit.Metrics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,8 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
 
     @Override
     public void onEnable() {
+        new Metrics(this, 28444);
+
         saveDefaultConfig();
 
         configManager = new ConfigManager(this);
