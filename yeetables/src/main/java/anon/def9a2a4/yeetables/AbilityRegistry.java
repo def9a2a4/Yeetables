@@ -301,6 +301,11 @@ class SwapAbility implements Ability {
             return true;
         }
 
+        // Check if entity is exempt from swap
+        if (manager.getConfigManager().isSwapExempt(hitEntity)) {
+            return true; // Silent fail - destroy projectile without swapping
+        }
+
         // Get locations before swap
         Location shooterLoc = shooter.getLocation();
         Location entityLoc = hitEntity.getLocation();

@@ -15,13 +15,18 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -36,6 +41,7 @@ public class ConfigManager {
 
     // Global config values loaded once on reload
     private boolean hideDisplayProjectiles;
+    private List<EntityExemption> swapExemptions = new ArrayList<>();
 
     public ConfigManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -52,6 +58,7 @@ public class ConfigManager {
 
         // Load global config values
         hideDisplayProjectiles = plugin.getConfig().getBoolean("hide-display-projectiles", true);
+        swapExemptions = parseSwapExemptions(plugin.getConfig().getMapList("swap-exempt-entities"));
 
         // Load items.yml
         itemsConfig = loadYamlFile("items.yml");
@@ -461,6 +468,72 @@ public class ConfigManager {
     public boolean shouldHideDisplayProjectiles() {
         return hideDisplayProjectiles;
     }
+
+    public List<EntityExemption> getSwapExemptions() {
+        return swapExemptions;
+    }
+
+    /**
+     * Check if an entity is exempt from swap based on global exemption rules.
+     */
+    public boolean isSwapExempt(Entity entity) {
+        for (EntityExemption exemption : swapExemptions) {
+            if (exemption.isExempt(entity)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<EntityExemption> parseSwapExemptions(List<Map<?, ?>> list) {
+        List<EntityExemption> exemptions = new ArrayList<>();
+        if (list == null) {
+            return exemptions;
+        }
+
+        for (Map<?, ?> map : list) {
+            try {
+                // Parse entity type
+                EntityType entityType = null;
+                Object typeObj = map.get("type");
+                if (typeObj instanceof String typeStr && !"*".equals(typeStr)) {
+                    entityType = EntityType.valueOf(typeStr.toUpperCase());
+                }
+
+                // Parse if-has-any-tag
+                boolean ifHasAnyTag = false;
+                Object anyTagObj = map.get("if-has-any-tag");
+                if (anyTagObj instanceof Boolean b) {
+                    ifHasAnyTag = b;
+                }
+
+                // Parse required tags
+                Set<String> requiredTags = new HashSet<>();
+                Object tagsObj = map.get("if-has-tags");
+                if (tagsObj instanceof List<?> tagsList) {
+                    for (Object tag : tagsList) {
+                        if (tag instanceof String s) {
+                            requiredTags.add(s);
+                        }
+                    }
+                }
+
+                // Parse tag match mode
+                boolean requireAllTags = false;
+                Object modeObj = map.get("tag-match-mode");
+                if (modeObj instanceof String modeStr) {
+                    requireAllTags = "ALL".equalsIgnoreCase(modeStr);
+                }
+
+                exemptions.add(new EntityExemption(entityType, ifHasAnyTag, requiredTags, requireAllTags));
+            } catch (IllegalArgumentException e) {
+                logger.warning("Invalid entity type in swap-exempt-entities: " + map.get("type"));
+            }
+        }
+
+        return exemptions;
+    }
 }
 
 // ============================================================================
@@ -616,3 +689,47 @@ record ModelPart(
     Material material,
     float[] transformation
 ) {}
+
+/**
+ * Represents an entity exemption rule for swap ability.
+ * @param entityType The entity type to match, or null for wildcard (any entity)
+ * @param ifHasAnyTag If true, entity is exempt only if it has at least one scoreboard tag
+ * @param requiredTags Specific tags to check (empty = no specific tag requirement)
+ * @param requireAllTags If true, entity must have ALL tags; if false, ANY tag matches
+ */
+record EntityExemption(
+    EntityType entityType,
+    boolean ifHasAnyTag,
+    Set<String> requiredTags,
+    boolean requireAllTags
+) {
+    public boolean isExempt(Entity entity) {
+        // Check entity type (null = wildcard)
+        if (entityType != null && entity.getType() != entityType) {
+            return false;
+        }
+
+        // If if-has-any-tag is set, check if entity has any scoreboard tag
+        if (ifHasAnyTag) {
+            return !entity.getScoreboardTags().isEmpty();
+        }
+
+        // If no specific tags required, type match alone is sufficient
+        if (requiredTags.isEmpty()) {
+            return entityType != null; // Wildcard with no conditions matches nothing
+        }
+
+        // Check specific tag requirements
+        Set<String> entityTags = entity.getScoreboardTags();
+        if (requireAllTags) {
+            return entityTags.containsAll(requiredTags);
+        } else {
+            for (String tag : requiredTags) {
+                if (entityTags.contains(tag)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+}

@@ -46,6 +46,10 @@ public class ProjectileManager {
         return plugin;
     }
 
+    public ConfigManager getConfigManager() {
+        return configManager;
+    }
+
     // ========================================================================
     // Cooldown Management
     // ========================================================================

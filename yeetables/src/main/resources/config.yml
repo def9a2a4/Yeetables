@@ -7,3 +7,15 @@ debug: false
 # Hide the actual snowball projectile when using block/item display renderers
 # Set to false for debugging to see the snowball alongside display entities
 hide-display-projectiles: true
+
+# Entities exempt from swap ability teleportation
+# Each entry can have:
+#   type: ENTITY_TYPE (e.g. ARMOR_STAND, VILLAGER) or "*" for any entity
+#   if-has-any-tag: true (exempt if entity has ANY scoreboard tag)
+#   if-has-tags: [list, of, tags] (exempt if entity has specific tags)
+#   tag-match-mode: ANY or ALL (default: ANY)
+swap-exempt-entities:
+  - type: ARMOR_STAND
+    if-has-any-tag: true
+  - type: SHULKER
+    if-has-any-tag: true
