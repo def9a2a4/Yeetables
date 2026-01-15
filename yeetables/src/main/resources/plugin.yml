@@ -8,7 +8,7 @@ description: Data-driven throwable items with configurable physics, abilities, a
 commands:
   yeetables:
     description: Yeetables plugin commands
-    usage: /yeetables <reload|list|give <item>>
+    usage: /yeetables <help|reload|list|give <item>>
 
 permissions:
   yeetables.reload:

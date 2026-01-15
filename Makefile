@@ -2,10 +2,12 @@
 .PHONY: build
 build:
 	cd yeetables && gradle shadowJar
+	mkdir -p bin
 	cp yeetables/build/libs/*.jar bin
 
 .PHONY: clean
 clean:
+	rm -rf bin
 	cd yeetables && gradle clean
 
 
@@ -20,7 +22,7 @@ server-plugin-copy:
 
 .PHONY: server-start
 server-start:
-	cd server && java -Xmx2G -Xms2G -jar paper-1.21.10-105.jar nogui
+	cd server && java -Xmx2G -Xms2G -jar paper-1.21.11-55.jar nogui
 
 .PHONY: server
 server: server-plugin-copy server-start

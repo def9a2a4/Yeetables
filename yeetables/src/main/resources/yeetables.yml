@@ -27,7 +27,7 @@ yeetables:
       knockback-vertical: 0.35
     ability: bounce
     ability-config:
-      num-bounces: 3
+      num-bounces: 5
     render:
       type: simple
       material: SLIME_BALL

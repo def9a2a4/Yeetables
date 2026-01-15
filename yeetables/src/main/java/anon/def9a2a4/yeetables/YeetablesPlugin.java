@@ -27,6 +27,7 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
 
     private ConfigManager configManager;
     private ProjectileManager projectileManager;
+    private HelpProvider helpProvider;
 
     @Override
     public void onEnable() {
@@ -37,6 +38,7 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
         configManager = new ConfigManager(this);
         configManager.load();
 
+        helpProvider = new HelpProvider(configManager);
         projectileManager = new ProjectileManager(this, configManager);
 
         Bukkit.getPluginManager().registerEvents(this, this);
@@ -52,7 +54,11 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("yeetables")) {
-            if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
+            if (args.length == 0) {
+                helpProvider.showHelp(sender);
+                return true;
+            }
+            if (args[0].equalsIgnoreCase("reload")) {
                 if (!sender.hasPermission("yeetables.reload")) {
                     sender.sendMessage("You don't have permission to reload this plugin.");
                     return true;
@@ -62,7 +68,7 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
                 sender.sendMessage("Yeetables config reloaded!");
                 return true;
             }
-            if (args.length > 0 && args[0].equalsIgnoreCase("list")) {
+            if (args[0].equalsIgnoreCase("list")) {
                 // Show yeetables (throwables)
                 List<YeetableDefinition> enabled = configManager.getEnabledYeetables();
                 sender.sendMessage("Yeetables (throwable items) (" + enabled.size() + "):");
@@ -78,13 +84,21 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
                 }
                 return true;
             }
-            if (args.length >= 2 && args[0].equalsIgnoreCase("give")) {
-                if (!(sender instanceof Player player)) {
-                    sender.sendMessage("This command can only be used by players.");
-                    return true;
-                }
+            if (args[0].equalsIgnoreCase("help")) {
+                helpProvider.showHelp(sender);
+                return true;
+            }
+            if (args[0].equalsIgnoreCase("give")) {
                 if (!sender.hasPermission("yeetables.give")) {
                     sender.sendMessage("You don't have permission to use this command.");
+                    return true;
+                }
+                if (args.length == 1) {
+                    helpProvider.showGiveUsage(sender);
+                    return true;
+                }
+                if (!(sender instanceof Player player)) {
+                    sender.sendMessage("This command can only be used by players.");
                     return true;
                 }
                 String itemId = args[1];
@@ -114,6 +128,7 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
             // First argument: subcommand
             List<String> subcommands = new ArrayList<>();
             subcommands.add("list");
+            subcommands.add("help");
             if (sender.hasPermission("yeetables.reload")) {
                 subcommands.add("reload");
             }
@@ -125,12 +140,14 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
                     completions.add(sub);
                 }
             }
-        } else if (args.length == 2 && args[0].equalsIgnoreCase("give")) {
-            // Second argument for give: item names
-            if (sender.hasPermission("yeetables.give")) {
-                for (String itemId : configManager.getCustomItems().keySet()) {
-                    if (itemId.toLowerCase().startsWith(args[1].toLowerCase())) {
-                        completions.add(itemId);
+        } else if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("give")) {
+                // Second argument for give: item names
+                if (sender.hasPermission("yeetables.give")) {
+                    for (String itemId : configManager.getCustomItems().keySet()) {
+                        if (itemId.toLowerCase().startsWith(args[1].toLowerCase())) {
+                            completions.add(itemId);
+                        }
                     }
                 }
             }
