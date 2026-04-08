@@ -1,14 +1,14 @@
 
 .PHONY: build
 build:
-	cd yeetables && gradle shadowJar
+	cd yeetables && mvn -q package
 	mkdir -p bin
-	cp yeetables/build/libs/*.jar bin
+	cp yeetables/target/*.jar bin
 
 .PHONY: clean
 clean:
 	rm -rf bin
-	cd yeetables && gradle clean
+	cd yeetables && mvn -q clean
 
 
 .PHONY: server-plugin-copy

@@ -164,6 +164,8 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
         if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) return;
 
         Player player = event.getPlayer();
+        if (configManager.isWorldDisabled(player.getWorld().getName())) return;
+
         ItemStack inHand = player.getInventory().getItemInMainHand();
 
         YeetableDefinition def = configManager.findMatchingYeetable(inHand);
@@ -176,6 +178,8 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
 
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
+        if (configManager.isWorldDisabled(event.getEntity().getWorld().getName())) return;
+
         if (event.getEntity() instanceof Snowball snowball) {
             projectileManager.handleHit(event, snowball);
         } else if (event.getEntity() instanceof Arrow arrow) {
@@ -192,6 +196,8 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
     @EventHandler
     public void onEntityShootBow(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
+        if (configManager.isWorldDisabled(player.getWorld().getName())) return;
+
         ItemStack bow = event.getBow();
         if (bow == null) return;
 
@@ -204,6 +210,8 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
 
     @EventHandler
     public void onEntityUnleash(EntityUnleashEvent event) {
+        if (configManager.isWorldDisabled(event.getEntity().getWorld().getName())) return;
+
         // Prevent lead from breaking due to distance or player interaction for grapple anchors
         if (GrappleAbility.isGrappleAnchor(event.getEntity())) {
             event.setCancelled(true);

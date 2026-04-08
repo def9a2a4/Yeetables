@@ -42,6 +42,7 @@ public class ConfigManager {
     // Global config values loaded once on reload
     private boolean hideDisplayProjectiles;
     private List<EntityExemption> swapExemptions = new ArrayList<>();
+    private Set<String> disabledWorlds = new HashSet<>();
 
     public ConfigManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -59,6 +60,7 @@ public class ConfigManager {
         // Load global config values
         hideDisplayProjectiles = plugin.getConfig().getBoolean("hide-display-projectiles", true);
         swapExemptions = parseSwapExemptions(plugin.getConfig().getMapList("swap-exempt-entities"));
+        disabledWorlds = parseDisabledWorlds(plugin.getConfig().getStringList("disabled-worlds"));
 
         // Load items.yml
         itemsConfig = loadYamlFile("items.yml");
@@ -473,6 +475,10 @@ public class ConfigManager {
         return swapExemptions;
     }
 
+    public boolean isWorldDisabled(String worldName) {
+        return worldName != null && disabledWorlds.contains(worldName.toLowerCase());
+    }
+
     /**
      * Check if an entity is exempt from swap based on global exemption rules.
      */
@@ -533,6 +539,26 @@ public class ConfigManager {
         }
 
         return exemptions;
+    }
+
+    private Set<String> parseDisabledWorlds(List<String> worlds) {
+        Set<String> result = new HashSet<>();
+        if (worlds == null) {
+            return result;
+        }
+
+        for (String world : worlds) {
+            if (world == null) {
+                continue;
+            }
+
+            String trimmed = world.trim();
+            if (!trimmed.isEmpty()) {
+                result.add(trimmed.toLowerCase());
+            }
+        }
+
+        return result;
     }
 }
 
