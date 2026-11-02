@@ -1,5 +1,9 @@
 package anon.def9a2a4.yeetables;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -14,14 +18,20 @@ public class HelpProvider {
     private static final ChatColor TEXT = ChatColor.GRAY;
     private static final ChatColor PERMISSION = ChatColor.RED;
 
-    private final ConfigManager configManager;
+    private static final String GITHUB_URL = "https://github.com/def9a2a4/Yeetables";
+    private static final String DISCORD_URL = "https://def9a2a4.github.io/discord.html";
 
-    public HelpProvider(ConfigManager configManager) {
+    private final ConfigManager configManager;
+    private final String version;
+
+    public HelpProvider(ConfigManager configManager, String version) {
         this.configManager = configManager;
+        this.version = version;
     }
 
     public void showHelp(CommandSender sender) {
-        sender.sendMessage(header("Commands"));
+        sender.sendMessage(header("Yeetables v" + version));
+        sender.sendMessage(TEXT + "Throwable items with configurable physics, abilities, and rendering.");
 
         sender.sendMessage(HIGHLIGHT + "/yeetables help");
         sender.sendMessage(TEXT + "  Show this help message");
@@ -46,6 +56,10 @@ public class HelpProvider {
                 sender.sendMessage(TEXT + "  - " + HIGHLIGHT + id);
             }
         }
+
+        sender.sendMessage("");
+        sender.sendMessage(link("GitHub", GITHUB_URL));
+        sender.sendMessage(link("Discord", DISCORD_URL));
     }
 
     public void showGiveUsage(CommandSender sender) {
@@ -60,6 +74,12 @@ public class HelpProvider {
                 sender.sendMessage(TEXT + "  - " + HIGHLIGHT + id);
             }
         }
+    }
+
+    private static Component link(String label, String url) {
+        return Component.text(label + ": ", NamedTextColor.GRAY)
+                .append(Component.text(url, NamedTextColor.AQUA, TextDecoration.UNDERLINED)
+                        .clickEvent(ClickEvent.openUrl(url)));
     }
 
     private String header(String title) {

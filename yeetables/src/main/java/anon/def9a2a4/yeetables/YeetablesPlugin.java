@@ -38,7 +38,7 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
         configManager = new ConfigManager(this);
         configManager.load();
 
-        helpProvider = new HelpProvider(configManager);
+        helpProvider = new HelpProvider(configManager, getPluginMeta().getVersion());
         projectileManager = new ProjectileManager(this, configManager);
 
         Bukkit.getPluginManager().registerEvents(this, this);
