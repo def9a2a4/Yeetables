@@ -18,8 +18,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 public class ProjectileManager {
@@ -232,6 +234,9 @@ public class ProjectileManager {
     // Hit Handling
     // ========================================================================
 
+    /** Unknown ids already warned about, so a stale id warns once rather than on every hit. */
+    private final Set<String> warnedUnknownIds = new HashSet<>();
+
     public void handleHit(ProjectileHitEvent event, Snowball snowball) {
         PersistentDataContainer pdc = snowball.getPersistentDataContainer();
         String yeetableId = pdc.get(keyYeetableId, PersistentDataType.STRING);
@@ -239,7 +244,9 @@ public class ProjectileManager {
 
         YeetableDefinition def = configManager.getYeetableById(yeetableId);
         if (def == null) {
-            plugin.getLogger().warning("Unknown yeetable ID: " + yeetableId);
+            if (warnedUnknownIds.add(yeetableId)) {
+                plugin.getLogger().warning("Unknown yeetable ID: " + yeetableId + " (further hits by it are not logged)");
+            }
             return;
         }
 

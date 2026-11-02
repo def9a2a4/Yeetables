@@ -45,13 +45,11 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
 
         Bukkit.getPluginManager().registerEvents(this, this);
         getCommand("yeetables").setTabCompleter(this);
-        getLogger().info("Yeetables enabled.");
     }
 
     @Override
     public void onDisable() {
         GrappleAbility.cleanupAll();
-        getLogger().info("Yeetables disabled.");
     }
 
     @Override
