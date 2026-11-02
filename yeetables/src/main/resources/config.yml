@@ -8,6 +8,11 @@ debug: false
 # Set to false for debugging to see the snowball alongside display entities
 hide-display-projectiles: true
 
+# Worlds where Yeetables should be fully disabled.
+# In these worlds the plugin will not intercept interact/shoot/hit/unleash events at all.
+disabled-worlds:
+  - lbwlobby
+
 # Entities exempt from swap ability teleportation
 # Each entry can have:
 #   type: ENTITY_TYPE (e.g. ARMOR_STAND, VILLAGER) or "*" for any entity
