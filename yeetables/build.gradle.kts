@@ -35,7 +35,9 @@ tasks {
         }
     }
 
+    // Only the shaded jar ships: the plain jar had the same file name and lacks bStats
     jar {
+        enabled = false
         archiveBaseName.set("Yeetables")
         manifest {
             attributes["paperweight-mappings-namespace"] = "mojang"

@@ -1,5 +1,6 @@
 package anon.def9a2a4.yeetables;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
@@ -28,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public class AbilityRegistry {
     private static final Map<String, Ability> ABILITIES = new HashMap<>();
@@ -337,7 +339,9 @@ class GrappleAbility implements Ability {
     private static final Map<UUID, GrappleState> activeGrapples = new HashMap<>();
     private static final NamespacedKey GRAPPLE_ANCHOR_KEY = new NamespacedKey("yeetables", "grapple_anchor");
 
-    private record GrappleState(Arrow arrow, Chicken leashAnchor, BukkitTask task, int itemSlot) {}
+    // isHook: whether an item is the grappling hook that fired, so only it gets recharged
+    private record GrappleState(Arrow arrow, Chicken leashAnchor, BukkitTask task, int itemSlot,
+                                Predicate<ItemStack> isHook) {}
 
     @Override
     public boolean onHit(ProjectileHitEvent event, Snowball snowball, YeetableDefinition definition,
@@ -401,7 +405,7 @@ class GrappleAbility implements Ability {
      */
     public static void onLaunch(Player player, Arrow arrow,
                                  ConfigurationSection abilityConfig,
-                                 JavaPlugin plugin) {
+                                 JavaPlugin plugin, Predicate<ItemStack> isHook) {
         // Cancel any existing grapple
         cleanup(player.getUniqueId(), player);
 
@@ -428,6 +432,8 @@ class GrappleAbility implements Ability {
             c.setBaby();
             c.setAgeLock(true);
             c.setLootTable(null);
+            // Never saved: a stop or crash mid-grapple would otherwise leave an invisible, invulnerable chicken
+            c.setPersistent(false);
             // Tag as grapple anchor for unleash event detection
             c.getPersistentDataContainer().set(GRAPPLE_ANCHOR_KEY, PersistentDataType.BYTE, (byte) 1);
         });
@@ -460,7 +466,7 @@ class GrappleAbility implements Ability {
             }
         }.runTaskTimer(plugin, 0L, 1L);
 
-        activeGrapples.put(player.getUniqueId(), new GrappleState(arrow, anchor, task, itemSlot));
+        activeGrapples.put(player.getUniqueId(), new GrappleState(arrow, anchor, task, itemSlot, isHook));
     }
 
     /**
@@ -502,14 +508,24 @@ class GrappleAbility implements Ability {
                 state.leashAnchor().remove();
             }
 
-            // Recharge the crossbow
+            // Recharge the grappling hook - only if it's still the item in that slot, and with exactly
+            // one arrow (otherwise any crossbow moved into the slot got a free arrow)
             if (player != null && player.isOnline()) {
                 ItemStack item = player.getInventory().getItem(state.itemSlot());
-                if (item != null && item.getItemMeta() instanceof CrossbowMeta meta) {
-                    meta.addChargedProjectile(new ItemStack(Material.ARROW));
+                if (item != null && state.isHook().test(item) && item.getItemMeta() instanceof CrossbowMeta meta) {
+                    meta.setChargedProjectiles(List.of(new ItemStack(Material.ARROW)));
                     item.setItemMeta(meta);
                 }
             }
+        }
+    }
+
+    /** Ends every grapple (plugin disable): removes anchors and arrows, recharges hooks. */
+    public static void cleanupAll() {
+        for (UUID playerId : List.copyOf(activeGrapples.keySet())) {
+            GrappleState state = activeGrapples.get(playerId);
+            cleanup(playerId, Bukkit.getPlayer(playerId));
+            if (state != null) state.arrow().remove();
         }
     }
 }

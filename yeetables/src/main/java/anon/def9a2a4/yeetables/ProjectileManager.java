@@ -109,6 +109,8 @@ public class ProjectileManager {
             );
             renderer.spawn();
             pdc.set(keyRendererId, PersistentDataType.INTEGER, renderer.getId());
+            // Renderers don't survive a restart, so neither should the projectile carrying their id
+            snowball.setPersistent(false);
             if (configManager.shouldHideDisplayProjectiles()) {
                 snowball.setItem(new ItemStack(Material.AIR));
             }
@@ -118,6 +120,8 @@ public class ProjectileManager {
             );
             renderer.spawn();
             pdc.set(keyRendererId, PersistentDataType.INTEGER, renderer.getId());
+            // Renderers don't survive a restart, so neither should the projectile carrying their id
+            snowball.setPersistent(false);
             if (configManager.shouldHideDisplayProjectiles()) {
                 snowball.setItem(new ItemStack(Material.AIR));
             }
@@ -152,7 +156,10 @@ public class ProjectileManager {
 
         // Start grapple tracking
         if ("grapple".equals(def.ability())) {
-            GrappleAbility.onLaunch(player, arrow, def.abilityConfig(), plugin);
+            GrappleAbility.onLaunch(player, arrow, def.abilityConfig(), plugin, item -> {
+                YeetableDefinition match = configManager.findMatchingYeetable(item);
+                return match != null && match.id().equals(def.id());
+            });
         }
 
         // Play launch sound if configured

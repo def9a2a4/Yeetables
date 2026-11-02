@@ -6,7 +6,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityShootBowEvent;
@@ -48,6 +50,7 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
 
     @Override
     public void onDisable() {
+        GrappleAbility.cleanupAll();
         getLogger().info("Yeetables disabled.");
     }
 
@@ -107,9 +110,15 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
                     sender.sendMessage("Unknown item: " + itemId);
                     return true;
                 }
-                player.getInventory().addItem(item.createItemStack());
                 String displayName = item.displayName() != null ? item.displayName() : itemId;
-                sender.sendMessage("Gave you 1x " + displayName);
+                Map<Integer, ItemStack> overflow = player.getInventory().addItem(item.createItemStack());
+                if (overflow.isEmpty()) {
+                    sender.sendMessage("Gave you 1x " + displayName);
+                } else {
+                    // Inventory full: drop it rather than lose it
+                    overflow.values().forEach(leftover -> player.getWorld().dropItemNaturally(player.getLocation(), leftover));
+                    sender.sendMessage("Inventory full. Dropped 1x " + displayName + " at your feet.");
+                }
                 return true;
             }
         }
@@ -156,7 +165,8 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
         return completions;
     }
 
-    @EventHandler
+    // HIGH: protection plugins (WorldGuard, Towny, GriefPrevention...) have decided by now
+    @EventHandler(priority = EventPriority.HIGH)
     public void onRightClick(PlayerInteractEvent event) {
         if (event.getHand() != EquipmentSlot.HAND) return;
 
@@ -169,12 +179,22 @@ public class YeetablesPlugin extends JavaPlugin implements Listener, TabComplete
         YeetableDefinition def = configManager.findMatchingYeetable(inHand);
         if (def == null) return;
 
+        // A protection plugin refused item use here (cancelled events deny it too)
+        if (event.useItemInHand() == Event.Result.DENY) return;
+
+        // A yeetable is only ever thrown: never placed (bomb heads), lit (fire charges), charged
+        // (grappling hook crossbow), or used on the clicked block - even while on cooldown
+        event.setUseItemInHand(Event.Result.DENY);
+        event.setUseInteractedBlock(Event.Result.DENY);
+
         if (projectileManager.isOnCooldown(player, def)) return;
 
         projectileManager.launch(player, def);
     }
 
-    @EventHandler
+    // ignoreCancelled: a hit another plugin cancelled lets the projectile fly on, so acting on it would
+    // run the ability twice
+    @EventHandler(ignoreCancelled = true)
     public void onProjectileHit(ProjectileHitEvent event) {
         if (event.getEntity() instanceof Snowball snowball) {
             projectileManager.handleHit(event, snowball);

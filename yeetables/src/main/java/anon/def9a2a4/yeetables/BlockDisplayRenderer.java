@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Rotation mode for display entity renderers.
@@ -54,6 +55,12 @@ class SimpleItemRenderer implements ProjectileRenderer {
  */
 class RendererRegistry {
     private static final Map<Integer, ProjectileRenderer> ACTIVE = new ConcurrentHashMap<>();
+    // One counter for every renderer type, so ids never collide
+    private static final AtomicInteger NEXT_ID = new AtomicInteger(1);
+
+    public static int nextId() {
+        return NEXT_ID.getAndIncrement();
+    }
 
     public static void register(ProjectileRenderer renderer) {
         ACTIVE.put(renderer.getId(), renderer);
@@ -74,7 +81,6 @@ class RendererRegistry {
  * Spawns display entities that follow and rotate with the snowball carrier.
  */
 public class BlockDisplayRenderer implements ProjectileRenderer {
-    private static int NEXT_ID = 1;
 
     private static class PartInstance {
         final BlockDisplay entity;
@@ -106,7 +112,7 @@ public class BlockDisplayRenderer implements ProjectileRenderer {
     public BlockDisplayRenderer(JavaPlugin plugin, Snowball carrier, double gravityMultiplier, BlockDisplayRender config) {
         this.plugin = plugin;
         this.carrier = carrier;
-        this.id = NEXT_ID++;
+        this.id = RendererRegistry.nextId();
         this.gravityMultiplier = gravityMultiplier;
         this.config = config;
 
@@ -221,6 +227,11 @@ public class BlockDisplayRenderer implements ProjectileRenderer {
         new BukkitRunnable() {
             @Override
             public void run() {
+                // Removed during the first tick (point-blank hit, chunk unload)?
+                if (parent == null || !carrier.isValid()) {
+                    remove();
+                    return;
+                }
                 // Mount children to parent
                 for (PartInstance pi : parts) {
                     parent.addPassenger(pi.entity);
@@ -278,12 +289,14 @@ public class BlockDisplayRenderer implements ProjectileRenderer {
             if (vehicle != null) {
                 vehicle.removePassenger(parent);
             }
-            for (org.bukkit.entity.Entity passenger : parent.getPassengers()) {
-                passenger.remove();
-            }
             parent.remove();
             parent = null;
         }
+        // Remove our own parts, mounted or not (they're only mounted a tick after spawning)
+        for (PartInstance pi : parts) {
+            pi.entity.remove();
+        }
+        parts.clear();
     }
 }
 
@@ -292,7 +305,6 @@ public class BlockDisplayRenderer implements ProjectileRenderer {
  * Supports custom items with full metadata (e.g., player heads with textures).
  */
 class ItemDisplayRenderer implements ProjectileRenderer {
-    private static int NEXT_ID = 1000; // Offset from BlockDisplayRenderer IDs
 
     private final JavaPlugin plugin;
     private final Snowball carrier;
@@ -314,7 +326,7 @@ class ItemDisplayRenderer implements ProjectileRenderer {
     public ItemDisplayRenderer(JavaPlugin plugin, Snowball carrier, double gravityMultiplier, ItemDisplayRender config) {
         this.plugin = plugin;
         this.carrier = carrier;
-        this.id = NEXT_ID++;
+        this.id = RendererRegistry.nextId();
         this.gravityMultiplier = gravityMultiplier;
         this.config = config;
 
@@ -396,6 +408,11 @@ class ItemDisplayRenderer implements ProjectileRenderer {
         new BukkitRunnable() {
             @Override
             public void run() {
+                // Removed during the first tick (point-blank hit, chunk unload)?
+                if (display == null || !carrier.isValid()) {
+                    remove();
+                    return;
+                }
                 carrier.addPassenger(display);
 
                 Vector initDir = carrier.getVelocity();
