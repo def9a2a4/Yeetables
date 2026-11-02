@@ -1,8 +1,8 @@
 # Yeetables
 
-A Minecraft Paper plugin for data-driven throwable items with configurable physics, abilities, and rendering.
+[![Download on Modrinth](https://img.shields.io/badge/download-modrinth-00AF5C?style=for-the-badge&logo=modrinth&logoColor=white)](https://modrinth.com/plugin/yeetables) [![Join the Discord](https://img.shields.io/badge/discord-join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://def9a2a4.github.io/discord.html)
 
-Download on Modrinth: [modrinth.com/plugin/yeetables](https://modrinth.com/plugin/yeetables)
+A Minecraft Paper plugin for data-driven throwable items with configurable physics, abilities, and rendering.
 
 ## Default Yeetables
 
